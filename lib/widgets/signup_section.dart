@@ -25,7 +25,7 @@ class OWASignUpSection extends StatelessWidget {
                 horizontal: SizeConfig.w(42),
                 vertical: SizeConfig.h(40),
               ),
-              child: const _SignUpCard(),
+              child: const _UserProfileContent(),
             ),
             OWAFooter(key: UniqueKey()),
           ],
@@ -35,8 +35,8 @@ class OWASignUpSection extends StatelessWidget {
   }
 }
 
-class _SignUpCard extends StatelessWidget {
-  const _SignUpCard();
+class _UserProfileContent extends StatelessWidget {
+  const _UserProfileContent();
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +48,9 @@ class _SignUpCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: const [
-              Expanded(flex: 11, child: _LeftSignUpPanel()),
+              Expanded(flex: 8, child: _LeftImagePanel()),
               SizedBox(width: 24),
-              Expanded(flex: 9, child: _RightImagePanel()),
+              Expanded(flex: 9, child: _RightProfilePanel()),
             ],
           ),
         ),
@@ -59,77 +59,41 @@ class _SignUpCard extends StatelessWidget {
   }
 }
 
-class _LeftSignUpPanel extends StatelessWidget {
-  const _LeftSignUpPanel();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: colors.backgroundColor,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: const _SignUpForm(),
-    );
-  }
-}
-
-class _RightImagePanel extends StatelessWidget {
-  const _RightImagePanel();
+class _LeftImagePanel extends StatelessWidget {
+  const _LeftImagePanel();
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/discover_4.jpg', fit: BoxFit.cover),
+          child: Image.asset('assets/discover_1.jpg', fit: BoxFit.cover),
         ),
         Positioned.fill(
           child: Container(color: Colors.black.withOpacity(0.35)),
-        ),
-        Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'GET STARTED',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Basier Square Mono',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 32,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Already have an Account?',
-                style: TextStyle(
-                  fontFamily: 'Basier Square Mono',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _RightPanelButton(text: 'LOG IN'),
-            ],
-          ),
         ),
       ],
     );
   }
 }
 
-class _SignUpForm extends StatefulWidget {
-  const _SignUpForm();
+class _RightProfilePanel extends StatelessWidget {
+  const _RightProfilePanel();
 
   @override
-  State<_SignUpForm> createState() => _SignUpFormState();
+  Widget build(BuildContext context) {
+    return const _UserProfileForm();
+  }
 }
 
-class _SignUpFormState extends State<_SignUpForm> {
+class _UserProfileForm extends StatefulWidget {
+  const _UserProfileForm();
+
+  @override
+  State<_UserProfileForm> createState() => _UserProfileFormState();
+}
+
+class _UserProfileFormState extends State<_UserProfileForm> {
   final _formKey = GlobalKey<FormState>();
 
   final _email = TextEditingController();
@@ -148,15 +112,20 @@ class _SignUpFormState extends State<_SignUpForm> {
 
   String _gender = "Male";
 
+  static const Color _cardColor = Color(0xFFE9E3D9);
+  static const Color _borderColor = Color(0xFF111111);
+  static const Color _lineColor = Color(0xFFBDB6AA);
+
   InputDecoration _dec() => const InputDecoration(
     isDense: true,
     contentPadding: EdgeInsets.symmetric(vertical: 8),
     enabledBorder: UnderlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFBDBDBD)),
+      borderSide: BorderSide(color: _lineColor),
     ),
     focusedBorder: UnderlineInputBorder(
       borderSide: BorderSide(color: Color(0xFF2C2C2C), width: 1.5),
     ),
+    border: UnderlineInputBorder(borderSide: BorderSide(color: _lineColor)),
   );
 
   Widget _field(
@@ -165,6 +134,7 @@ class _SignUpFormState extends State<_SignUpForm> {
     bool obscure = false,
     int lines = 1,
     VoidCallback? onTap,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -173,7 +143,12 @@ class _SignUpFormState extends State<_SignUpForm> {
         children: [
           Text(
             label.toUpperCase(),
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+              color: Color(0xFF2C2C2C),
+            ),
           ),
           const SizedBox(height: 4),
           TextFormField(
@@ -182,11 +157,32 @@ class _SignUpFormState extends State<_SignUpForm> {
             maxLines: lines,
             readOnly: onTap != null,
             onTap: onTap,
+            inputFormatters: inputFormatters,
             decoration: _dec(),
-            validator: (v) => (v == null || v.isEmpty) ? "Required" : null,
+            validator:
+                (v) => (v == null || v.trim().isEmpty) ? "Required" : null,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _cardContainer({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: _borderColor, width: 2.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: child,
     );
   }
 
@@ -236,14 +232,16 @@ class _SignUpFormState extends State<_SignUpForm> {
     }
   }
 
-  void _goToLogin() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      Navigator.pushReplacement(
+  void _saveProfile() {
+    if (_formKey.currentState?.validate() ?? false) {
+      ScaffoldMessenger.of(
         context,
-        MaterialPageRoute(builder: (_) => const OWALoginSection()),
-      );
-    });
+      ).showSnackBar(const SnackBar(content: Text("Profile saved")));
+    }
+  }
+
+  void _cancel() {
+    Navigator.of(context).maybePop();
   }
 
   @override
@@ -268,161 +266,182 @@ class _SignUpFormState extends State<_SignUpForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: SingleChildScrollView(
+      child: Container(
+        color: colors.backgroundColor,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "CREATE YOUR ACCOUNT",
-              style: TextStyle(
-                fontFamily: 'Basier Square Mono',
-                fontWeight: FontWeight.w400,
-                fontSize: 30.4,
-                color: Colors.black,
-                letterSpacing: 0,
-                height: 1.2,
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Text("Fill in your details to access your dashboard."),
-            const SizedBox(height: 14),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _field("First name", _firstName)),
-                const SizedBox(width: 12),
-                Expanded(child: _field("Last name", _lastName)),
-              ],
-            ),
-            _field("Email", _email),
-            _field("Password", _password, obscure: true),
-            Row(
-              children: [
-                Expanded(
+                const Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "GENDER",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        DropdownButtonFormField<String>(
-                          value: _gender,
-                          dropdownColor: colors.backgroundColor,
-                          borderRadius: BorderRadius.zero,
-                          decoration: _dec(),
-                          items: const [
-                            DropdownMenuItem(
-                              value: "Male",
-                              child: Text("Male"),
-                            ),
-                            DropdownMenuItem(
-                              value: "Female",
-                              child: Text("Female"),
-                            ),
-                            DropdownMenuItem(
-                              value: "Non-Disclosed",
-                              child: Text("Non-Disclosed"),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            if (value == null) return;
-                            setState(() => _gender = value);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _field("Birthday", _birthday, onTap: _selectBirthday),
-                ),
-              ],
-            ),
-            _field("Phone number", _phone),
-            Row(
-              children: [
-                Expanded(
-                  child: _field(
-                    "Country of origin",
-                    _countryOrigin,
-                    onTap: () => _selectCountry(_countryOrigin),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _field(
-                    "Country of residence",
-                    _countryResidence,
-                    onTap: () => _selectCountry(_countryResidence),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              "ADDRESS",
-              style: TextStyle(fontWeight: FontWeight.w800),
-            ),
-            _field("Line 1", _line1),
-            _field("Line 2", _line2),
-            Row(
-              children: [
-                Expanded(child: _field("City", _city)),
-                const SizedBox(width: 12),
-                Expanded(child: _field("State", _state)),
-              ],
-            ),
-            _field("Postal code", _postal),
-            const SizedBox(height: 16),
-            Center(
-              child: Column(
-                children: [
-                  _LoginImageButton(
-                    text: "SIGN UP",
-                    onTap: () {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Form Valid")),
-                        );
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  InkWell(
-                    onTap: _goToLogin,
-                    borderRadius: BorderRadius.circular(8),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                      child: Text.rich(
-                        TextSpan(
-                          text: "Already a member? ",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF2C2C2C),
-                          ),
-                          children: [
-                            TextSpan(
-                              text: "Log In",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                decoration: TextDecoration.underline,
-                                color: Color(0xFF2C2C2C),
-                              ),
-                            ),
-                          ],
-                        ),
+                    padding: EdgeInsets.only(top: 4),
+                    child: Text(
+                      "USER PROFILE",
+                      style: TextStyle(
+                        fontFamily: 'Times New Roman',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 34,
+                        color: Colors.black,
+                        height: 1.0,
                       ),
                     ),
                   ),
-                ],
+                ),
+                const SizedBox(width: 18),
+                _LoginImageButton(
+                  text: "SAVE",
+                  width: 148,
+                  height: 44,
+                  onTap: _saveProfile,
+                ),
+                const SizedBox(width: 14),
+                _LoginImageButton(
+                  text: "CANCEL",
+                  width: 148,
+                  height: 44,
+                  onTap: _cancel,
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _cardContainer(
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(child: _field("First name", _firstName)),
+                              const SizedBox(width: 16),
+                              Expanded(child: _field("Last name", _lastName)),
+                            ],
+                          ),
+                          _field("Email", _email),
+                          _field("Password", _password, obscure: true),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 6,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "GENDER",
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.2,
+                                          color: Color(0xFF2C2C2C),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      DropdownButtonFormField<String>(
+                                        value: _gender,
+                                        dropdownColor: colors.backgroundColor,
+                                        borderRadius: BorderRadius.zero,
+                                        decoration: _dec(),
+                                        items: const [
+                                          DropdownMenuItem(
+                                            value: "Male",
+                                            child: Text("Male"),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: "Female",
+                                            child: Text("Female"),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: "Non-Disclosed",
+                                            child: Text("Non-Disclosed"),
+                                          ),
+                                        ],
+                                        onChanged: (value) {
+                                          if (value == null) return;
+                                          setState(() => _gender = value);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _field(
+                                  "Birthday",
+                                  _birthday,
+                                  onTap: _selectBirthday,
+                                ),
+                              ),
+                            ],
+                          ),
+                          _field(
+                            "Phone number",
+                            _phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9+\-\s()]'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    _cardContainer(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _field(
+                                  "Country of origin",
+                                  _countryOrigin,
+                                  onTap: () => _selectCountry(_countryOrigin),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _field(
+                                  "Country of residence",
+                                  _countryResidence,
+                                  onTap:
+                                      () => _selectCountry(_countryResidence),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "ADDRESS",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                              color: Color(0xFF2C2C2C),
+                            ),
+                          ),
+                          _field("Line 1", _line1),
+                          _field("Line 2", _line2),
+                          Row(
+                            children: [
+                              Expanded(child: _field("City", _city)),
+                              const SizedBox(width: 16),
+                              Expanded(child: _field("State", _state)),
+                            ],
+                          ),
+                          _field("Postal code", _postal),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -440,15 +459,19 @@ class _LoginImageButton extends StatefulWidget {
   final Color textColor;
   final Color textHoverColor;
   final Color hoverBackgroundColor;
+  final double width;
+  final double height;
 
   const _LoginImageButton({
-    this.text = 'SIGN UP',
+    this.text = 'SAVE',
     this.onTap,
     this.backgroundColor = Colors.transparent,
-    this.borderColor = const Color(0xFF2C2C2C),
+    this.borderColor = const Color(0xFF8B867D),
     this.textColor = const Color(0xFF2C2C2C),
     this.textHoverColor = const Color(0xFF2C2C2C),
     this.hoverBackgroundColor = const Color(0x14000000),
+    this.width = 220,
+    this.height = 51,
     super.key,
   });
 
@@ -469,8 +492,8 @@ class _LoginImageButtonState extends State<_LoginImageButton> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 140),
           curve: Curves.easeOut,
-          width: 220,
-          height: 51,
+          width: widget.width,
+          height: widget.height,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color:
